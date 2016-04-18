@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CustomerDashboard.Views;assembly=CustomerDashboard"
+             x:Class="CustomerDashboard.Views.CustomerListPage"
+             Title="CustomerList">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="200" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    
+    <local:ChartViewTemplate Grid.Row="0" Grid.Column="0" />
+    <ListView ItemsSource="{Binding .}" HasUnevenRows="True" Grid.Row="1" Grid.Column="0">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <ViewCell>
+            <local:CustomerListTemplate />
+          </ViewCell>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+  </Grid>
+</ContentPage>
