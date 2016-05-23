@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace XF_SalesDashboard
@@ -22,6 +21,7 @@ namespace XF_SalesDashboard
         {
             System.Diagnostics.Debug.WriteLine("【OnStart】");
             await Models.SingletonSalesClass.Instance.Initialize();
+            System.Diagnostics.Debug.WriteLine("【OnStart】【Done】");
             // Handle when your app starts
             //await Models.SingletonSalesClass.Instance.Initialize();
         }

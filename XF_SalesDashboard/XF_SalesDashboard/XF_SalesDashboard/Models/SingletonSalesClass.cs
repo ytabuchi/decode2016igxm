@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -9,16 +10,27 @@ using System.Threading.Tasks;
 
 namespace XF_SalesDashboard.Models
 {
-    public class SingletonSalesClass
+    public class SingletonSalesClass : INotifyPropertyChanged
     {
-        static readonly string EndPoint = @"http://jxug.org/SalesData.json";
+        static readonly string EndPoint = @"https://raw.githubusercontent.com/ytabuchi/decode2016igxm/master/SalesData.json";
 
         /// <summary>
         /// たった一つのインスタンス
         /// </summary>
         public static SingletonSalesClass Instance { get; } = new SingletonSalesClass();
 
-        private List<SalesModel> _salesData = new List<SalesModel>();
+        private List<SalesModel> _salesData;
+        public List<SalesModel> SalesData
+        {
+            get { return _salesData; }
+            set
+            {
+                _salesData = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SalesData)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// インスタンスが一つきりであることを保証するためコンストラクタは隠ぺいする
@@ -31,42 +43,49 @@ namespace XF_SalesDashboard.Models
         /// <summary>
         /// 初期化メソッド
         /// </summary>
-        public Task Initialize()
+        public async Task Initialize()
         {
-            System.Diagnostics.Debug.WriteLine("【SingletonSalesClass.Instance.Initialize()】");
-            return Task.Run(async () =>
+            using (var client = new HttpClient())
             {
-                using (var client = new HttpClient())
+                using (var reader = new StreamReader(await client.GetStreamAsync(EndPoint)))
                 {
-                    using (var reader = new StreamReader(await client.GetStreamAsync(EndPoint)))
-                    {
-                        var json = await reader.ReadToEndAsync();
-                        this._salesData = JsonConvert.DeserializeObject<List<SalesModel>>(json);
-                    }
+                    var json = await reader.ReadToEndAsync();
+                    this.SalesData = JsonConvert.DeserializeObject<List<SalesModel>>(json);
+                    System.Diagnostics.Debug.WriteLine("【SingletonSalesClass.Instance.Initialize()】");
                 }
-            });
+            }
         }
 
-        public Task<List<SummaryModel>> GetSalesAsync()
+        public List<SummaryModel> GetAreas()
         {
-            return Task.Run(() =>
-            {
-                return this._salesData
-                    .GroupBy(x => x.StoreName)
-                    .Select(x => new SummaryModel
-                    {
-                        Item = x.Key,
-                        Value = x.Sum(y => y.Sales)
-                    }).ToList();
-
-            });
+            if (_salesData == null) { return new List<SummaryModel>(); }
+            return this._salesData
+                .GroupBy(x => x.Area)
+                .Select(x => new SummaryModel
+                {
+                    Item = x.Key,
+                    Value = x.Count()
+                }).ToList();
         }
 
-        public Task<List<SummaryModel>> GetSalesbyCategoriesAsync()
+        public List<SummaryModel> GetSales()
         {
-            return Task.Run(() =>
-            {
-                return this._salesData
+            if (_salesData == null) { return new List<SummaryModel>(); }
+            return this._salesData
+                .GroupBy(x => x.StoreName)
+                .Select(x => new SummaryModel
+                {
+                    Item = x.Key,
+                    Value = x.Sum(y => y.Sales)
+                }).ToList();
+
+
+        }
+
+        public List<SummaryModel> GetSalesbyCategories()
+        {
+            if (_salesData == null) { return new List<SummaryModel>(); }
+            return this._salesData
                     .GroupBy(x => x.Category)
                     .Select(x => new SummaryModel
                     {
@@ -74,22 +93,21 @@ namespace XF_SalesDashboard.Models
                         Value = x.Sum(y => y.Sales)
                     }).ToList();
 
-            });
+
         }
 
-        public Task<List<SummaryModel>> GetSalesbySegmentsAsync()
+        public List<SummaryModel> GetSalesbySegments()
         {
-            return Task.Run(() =>
-            {
-                return this._salesData
-                    .GroupBy(x => x.Segment.Contains("M") ? "男性" : "女性")
-                    .Select(x => new SummaryModel
-                    {
-                        Item = x.Key,
-                        Value = x.Sum(y => y.Sales)
-                    }).ToList();
+            if (_salesData == null) { return new List<SummaryModel>(); }
+            return this._salesData
+                .GroupBy(x => x.Segment.Contains("M") ? "男性" : "女性")
+                .Select(x => new SummaryModel
+                {
+                    Item = x.Key,
+                    Value = x.Sum(y => y.Sales)
+                }).ToList();
 
-            });
+
         }
     }
 }
