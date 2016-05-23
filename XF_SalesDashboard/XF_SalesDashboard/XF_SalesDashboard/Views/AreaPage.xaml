@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ig="clr-namespace:Infragistics.XF.Controls;assembly=InfragisticsXF.Controls.Charts"
+             x:Class="XF_SalesDashboard.Views.AreaPage"
+             Title="Area">
+  <Grid RowSpacing="10">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <!-- ListView -->
+    <ListView x:Name="listView" ItemsSource="{Binding}">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <TextCell Text="{Binding Item}" Detail="{Binding Value, StringFormat='{0}円'}"/>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+
+    <!-- DataChart -->
+    <ig:XFDataChart Grid.Row="1" x:Name="dataChart">
+      <ig:XFDataChart.Axes>
+        <ig:CategoryXAxis x:Name="xAxis"
+                          ItemsSource="{Binding}"
+                          Label="Item"/>
+        <ig:NumericYAxis x:Name="yAxis"/>
+      </ig:XFDataChart.Axes>
+      <ig:XFDataChart.Series>
+        <ig:ColumnSeries ItemsSource="{Binding}"
+                         Title="Sales"
+                         ValueMemberPath="Value"
+                         XAxis="{x:Reference xAxis}"
+                         YAxis="{x:Reference yAxis}">
+        </ig:ColumnSeries>
+      </ig:XFDataChart.Series>
+    </ig:XFDataChart>
+
+    <!-- PieChart -->
+    <!--<ig:XFPieChart Grid.Row="2"
+                   x:Name="pieChart"
+                   ItemsSource="{Binding}"
+                   LabelMemberPath="Item"
+                   ValueMemberPath="Value"/>-->
+
+  </Grid>
+</ContentPage>
