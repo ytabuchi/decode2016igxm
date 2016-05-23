@@ -11,7 +11,7 @@ namespace XF_SalesDashboard
     {
         public App()
         {
-            var nav = new NavigationPage(new Views.AreaPage());
+            var nav = new NavigationPage(new Views.StartPage());
             nav.BarBackgroundColor = Color.FromHex("3498DB");
             nav.BarTextColor = Color.White;
             MainPage = nav;
